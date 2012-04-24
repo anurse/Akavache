@@ -4,7 +4,9 @@ using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Text;
 using System.Threading;
+using Newtonsoft.Json;
 
 namespace Akavache
 {
@@ -154,7 +156,7 @@ namespace Akavache
         public static TestBlobCache OverrideGlobals(IDictionary<string, object> initialContents, IScheduler scheduler = null)
         {
             var initialSerializedContents = initialContents
-		    .Select(item => new KeyValuePair<string, byte[]>(item.Key, JsonSerializationMixin.SerializeObject(item.Value)))
+		    .Select(item => new KeyValuePair<string, byte[]>(item.Key, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(item.Value))))
 		    .ToArray();
 
             return OverrideGlobals(scheduler, initialSerializedContents);

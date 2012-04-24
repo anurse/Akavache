@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.IO.IsolatedStorage;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Concurrency;
@@ -16,6 +15,7 @@ using System.Threading;
 using NLog;
 using Newtonsoft.Json;
 using ReactiveUI;
+using System.IO.IsolatedStorage;
 
 namespace Akavache
 {
@@ -25,7 +25,11 @@ namespace Akavache
     /// </summary>
     public abstract class PersistentBlobCache : IBlobCache
     {
+#if WINRT
+        static readonly dynamic log = LogHost.Default;
+#else
         static readonly Logger log = LogManager.GetCurrentClassLogger();
+#endif
 
         protected MemoizingMRUCache<string, AsyncSubject<byte[]>> MemoizedRequests;
         protected readonly string CacheDirectory;
@@ -45,7 +49,12 @@ namespace Akavache
         {
             this.CacheDirectory = cacheDirectory ?? GetDefaultRoamingCacheDirectory();
             this.Scheduler = scheduler ?? RxApp.TaskpoolScheduler;
+
+#if WINRT
+            this.filesystem = filesystemProvider;
+#else
             this.filesystem = filesystemProvider ?? new SimpleFilesystemProvider();
+#endif
 
             // Here, we're not actually caching the requests directly (i.e. as
             // byte[]s), but as the "replayed result of the request", in the
@@ -429,7 +438,7 @@ namespace Akavache
             return Path.Combine(CacheDirectory, Utility.GetMd5Hash(key));
         }
 
-#if SILVERLIGHT
+#if SILVERLIGHT || WINRT
         protected static string GetDefaultRoamingCacheDirectory()
         {
             return "BlobCache";

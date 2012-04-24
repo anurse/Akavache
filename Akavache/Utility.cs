@@ -7,18 +7,33 @@ using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using NLog;
 using ReactiveUI;
 
+#if WINRT
+using System.Reactive.Threading.Tasks;
+#else
+using System.Security.Cryptography;
+#endif
+
 namespace Akavache
 {
     static class Utility
     {
+#if WINRT
+        static readonly dynamic log = LogHost.Default;
+#else
         static readonly Logger log = LogManager.GetCurrentClassLogger();
+#endif
 
+#if WINRT
+        public static string GetMd5Hash(string input)
+        {
+            throw new NotImplementedException();
+        }
+#else
         public static string GetMd5Hash(string input)
         {
 #if SILVERLIGHT
@@ -37,7 +52,9 @@ namespace Akavache
                 return sBuilder.ToString();
             }
         }
+#endif
 
+#if !WINRT
         public static IObservable<FileStream> SafeOpenFileAsync(string path, FileMode mode, FileAccess access, FileShare share, IScheduler scheduler = null)
         {
             scheduler = scheduler ?? RxApp.TaskpoolScheduler;
@@ -98,6 +115,7 @@ namespace Akavache
                 return (new DirectoryInfo(path)).FullName;
             });
         }
+#endif
 
         public static TAcc Scan<T, TAcc>(this IEnumerable<T> This, TAcc initialValue, Func<TAcc, T, TAcc> accFunc)
         {
@@ -127,6 +145,9 @@ namespace Akavache
 
         public static IObservable<Unit> CopyToAsync(this Stream This, Stream destination, IScheduler scheduler = null)
         {
+#if WINRT
+            return This.CopyToAsync(destination).ToObservable();
+#else
             return Observable.Start(() =>
             {
                 try
@@ -140,6 +161,7 @@ namespace Akavache
                     log.Warn("CopyToAsync failed", ex);
                 }
             }, scheduler ?? RxApp.TaskpoolScheduler);
+#endif
 
 #if FALSE
             var reader = Observable.FromAsyncPattern<byte[], int, int, int>(This.BeginRead, This.EndRead);
@@ -178,9 +200,11 @@ namespace Akavache
                     retries--;
                     if (retries == 0)
                     {
-                        Thread.Sleep(10);
                         throw;
                     }
+#if !WINRT
+                    Thread.Sleep(10);
+#endif
                 }
             }
         }
@@ -199,9 +223,11 @@ namespace Akavache
                     retries--;
                     if (retries == 0)
                     {
-                        Thread.Sleep(10);
                         throw;
                     }
+#if !WINRT
+                    Thread.Sleep(10);
+#endif
                 }
             }
         }

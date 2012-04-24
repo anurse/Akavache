@@ -1,6 +1,8 @@
 //Copyright (c) Microsoft Corporation.  All rights reserved.
 using System;
-using System.Security.Cryptography;
+//using System.Security.Cryptography;
+using Windows.Security.Cryptography.Core;
+
 
 // **************************************************************
 // * Raw implementation of the MD5 hash algorithm
@@ -13,7 +15,7 @@ using System.Security.Cryptography;
 namespace Akavache
 {
 
-#if SILVERLIGHT
+#if SILVERLIGHT //|| WINRT
 public class MD5Managed : HashAlgorithm
 #else
 public class MD5Managed : MD5
