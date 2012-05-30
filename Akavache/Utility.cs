@@ -6,7 +6,6 @@ using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using NLog;
@@ -20,11 +19,7 @@ namespace Akavache
 
         public static string GetMd5Hash(string input)
         {
-#if SILVERLIGHT
             using (var md5Hasher = new MD5Managed())
-#else
-            using (var md5Hasher = MD5.Create())
-#endif
             {
                 // Convert the input string to a byte array and compute the hash.
                 var data = md5Hasher.ComputeHash(Encoding.UTF8.GetBytes(input));
