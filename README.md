@@ -1,5 +1,7 @@
 ## Akavache: An Asynchronous Key-Value Store for Native Applications
 
+[![Join the chat at https://gitter.im/anurse/Akavache](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/anurse/Akavache?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Akavache is an *asynchronous*, *persistent* key-value cache created
 for writing native desktop and mobile applications in C#. Think of it like
 memcached for desktop apps.
